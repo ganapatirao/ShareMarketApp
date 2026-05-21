@@ -1,0 +1,146 @@
+.stock-table-container {
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e0e0e0;
+}
+
+.stock-table-container h3 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.stock-table {
+  width: 100%;
+  min-width: 1200px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.stock-table thead {
+  background: #f8f9fa;
+  color: #2c3e50;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.stock-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stock-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+
+.stock-table th.sortable:hover {
+  background: #e9ecef;
+}
+
+.stock-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background 0.2s ease;
+}
+
+.stock-table tbody tr:hover {
+  background: #f8f9fa !important;
+}
+
+.stock-table td {
+  padding: 1rem;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.stock-table .symbol {
+  font-weight: 600;
+  color: #2c3e50;
+  letter-spacing: 0.3px;
+}
+
+.stock-table .company-name {
+  font-weight: 500;
+  color: #546e7a;
+}
+
+.stock-table .price {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.stock-table .change.positive {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.stock-table .change.negative {
+  color: #c62828;
+  font-weight: 600;
+}
+
+.stock-table .trend {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+}
+
+.stock-table .discount-from-high {
+  color: #546e7a;
+  font-weight: 500;
+}
+
+.stock-table .week52-high {
+  color: #546e7a;
+  font-weight: 500;
+}
+
+.stock-table .week52-low {
+  color: #546e7a;
+  font-weight: 500;
+}
+
+.stock-table .pe-ratio {
+  color: #546e7a;
+  font-weight: 500;
+}
+
+.stock-table .buy-price {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.stock-table .target-price {
+  color: #1565c0;
+  font-weight: 600;
+}
+
+.stock-table .rsi {
+  color: #546e7a;
+  font-weight: 500;
+}
+
+.stock-table .sector {
+  color: #546e7a;
+  font-weight: 500;
+}
+
+.stock-table .market-cap {
+  color: #546e7a;
+  font-size: 0.85rem;
+  font-weight: 500;
+}

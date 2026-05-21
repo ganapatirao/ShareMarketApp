@@ -1,0 +1,11 @@
+@stockmarket_agent_HostAddress = http://localhost:5088
+
+GET {{stockmarket_agent_HostAddress}}/openapi/v1.json
+Accept: application/json
+
+###
+
+GET {{stockmarket_agent_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,98 @@
+.options-table-container {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.options-table-container h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.options-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.options-table thead {
+  background: #764ba2;
+  color: white;
+}
+
+.options-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.options-table tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: background 0.3s ease;
+}
+
+.options-table tbody tr:hover {
+  background: #f5f5f5;
+}
+
+.options-table td {
+  padding: 1rem;
+  white-space: nowrap;
+}
+
+.options-table .symbol {
+  font-weight: 600;
+  color: #764ba2;
+}
+
+.options-table .price {
+  font-weight: 600;
+  color: #333;
+}
+
+.options-table .previous-close {
+  color: #666;
+}
+
+.options-table .change.positive,
+.options-table .change-percent.positive {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.options-table .change.negative,
+.options-table .change-percent.negative {
+  color: #f44336;
+  font-weight: 600;
+}
+
+.options-table .trend {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.options-table .support {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.options-table .resistance {
+  color: #f44336;
+  font-weight: 600;
+}
+
+.options-table .volume {
+  color: #666;
+}
+
+.options-table .last-updated {
+  color: #999;
+  font-size: 0.85rem;
+}
