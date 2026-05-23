@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApi();
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -64,8 +65,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
     app.UseStaticFiles();
+    app.MapOpenApi("openapi/v1.json");
 }
 
 app.UseCors("AllowAll");
@@ -76,6 +77,10 @@ app.MapControllers();
 // Serve static files from frontend build directory
 app.UseStaticFiles();
 
-app.MapFallbackToFile("index.html");
+// Map fallback to index.html for SPA routing (only in production)
+if (!app.Environment.IsDevelopment())
+{
+    app.MapFallbackToFile("index.html");
+}
 
 app.Run();

@@ -3,43 +3,546 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Market API - Swagger UI</title>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+    <title>Stock Market API - Documentation</title>
     <style>
-        html {
+        * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
-            overflow: -moz-scrollbars-vertical;
-            overflow-y: scroll;
-        }
-        *, *:before, *:after {
-            box-sizing: inherit;
         }
         body {
-            margin: 0;
-            background: #fafafa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
         }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .endpoint {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .endpoint-header {
+            background: #f9f9f9;
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .endpoint-header:hover {
+            background: #f0f0f0;
+        }
+        .method {
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            color: white;
+            min-width: 60px;
+            text-align: center;
+        }
+        .get { background: #61affe; }
+        .post { background: #49cc90; }
+        .put { background: #fca130; }
+        .delete { background: #f93e3e; }
+        .path {
+            font-family: monospace;
+            color: #333;
+            flex: 1;
+        }
+        .endpoint-content {
+            padding: 15px;
+            display: none;
+        }
+        .endpoint-content.active {
+            display: block;
+        }
+        .description {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .test-section {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+        .test-section h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .test-button {
+            background: #61affe;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background: #549be0;
+        }
+        .response {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            display: none;
+        }
+        .response.active {
+            display: block;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.active { display: block; }
     </style>
 </head>
 <body>
-    <div id="swagger-ui"></div>
-    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+    <div class="container">
+        <h1>Stock Market Analysis API</h1>
+        <p class="subtitle">A full-stack stock market analysis application for Indian stocks (NSE)</p>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/health</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Health check endpoint to verify service status</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/health', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/companies</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get all companies with optional filtering by market cap category or sector</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/companies', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/companies/{id}</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get a specific company by ID</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <input type="number" id="companyId" placeholder="Company ID" value="1" style="padding: 8px; margin-right: 10px;">
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/companies/' + document.getElementById('companyId').value, null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method post">POST</span>
+                <span class="path">/api/companies</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Create a new company</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('POST', '/api/companies', { symbol: 'TEST.NS', name: 'Test Company', sector: 'Technology', industry: 'Software', marketCapCategory: 'Large Cap' }, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method post">POST</span>
+                <span class="path">/api/companies/bulk</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Bulk create companies</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('POST', '/api/companies/bulk', [{ symbol: 'TEST1.NS', name: 'Test Company 1', sector: 'Technology', industry: 'Software', marketCapCategory: 'Large Cap' }, { symbol: 'TEST2.NS', name: 'Test Company 2', sector: 'Finance', industry: 'Banking', marketCapCategory: 'Mid Cap' }], this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method put">PUT</span>
+                <span class="path">/api/companies/{id}</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Update an existing company</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <input type="number" id="updateCompanyId" placeholder="Company ID" value="1" style="padding: 8px; margin-right: 10px;">
+                    <button class="test-button" onclick="testEndpoint('PUT', '/api/companies/' + document.getElementById('updateCompanyId').value, { symbol: 'TEST.NS', name: 'Updated Company', sector: 'Technology', industry: 'Software', marketCapCategory: 'Large Cap' }, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method delete">DELETE</span>
+                <span class="path">/api/companies/{id}</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Soft delete a company (set IsActive to false)</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <input type="number" id="deleteCompanyId" placeholder="Company ID" value="1" style="padding: 8px; margin-right: 10px;">
+                    <button class="test-button" onclick="testEndpoint('DELETE', '/api/companies/' + document.getElementById('deleteCompanyId').value, null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/companies/symbols</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get all active company symbols</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/companies/symbols', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/companies/sectors</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get all unique sectors</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/companies/sectors', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/companies/by-sector</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get companies grouped by sector</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/companies/by-sector', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/stocks</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get stocks with pagination, filtering, and sorting</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/stocks', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/stocks/{symbol}</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get stock data by symbol</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <input type="text" id="stockSymbol" placeholder="Stock Symbol (e.g., INFY.NS)" value="INFY.NS" style="padding: 8px; margin-right: 10px;">
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/stocks/' + document.getElementById('stockSymbol').value, null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/stocks/company-names</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get all unique company names</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/stocks/company-names', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/stocks/sectors</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get all unique sectors</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/stocks/sectors', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/stocks/market-caps</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get all unique market cap categories</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/stocks/market-caps', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/stocks/{symbol}/technical-analysis</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get technical analysis for a specific stock</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <input type="text" id="techSymbol" placeholder="Stock Symbol (e.g., INFY.NS)" value="INFY.NS" style="padding: 8px; margin-right: 10px;">
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/stocks/' + document.getElementById('techSymbol').value + '/technical-analysis', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/stocks/compare</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Compare multiple stocks side by side</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <input type="text" id="compareSymbols" placeholder="Symbols (e.g., INFY.NS,TCS.NS)" value="INFY.NS,TCS.NS" style="padding: 8px; margin-right: 10px;">
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/stocks/compare?symbols=' + document.getElementById('compareSymbols').value, null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/stocks/sector-analysis</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get sector-wise analysis of stocks</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/stocks/sector-analysis', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/stocks/multibagger</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get multibagger stocks (stocks with more than 20 percent price change)</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/stocks/multibagger', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/stocks/valuable</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get valuable stocks (discount from 52-week high and oversold RSI)</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/stocks/valuable', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method post">POST</span>
+                <span class="path">/api/stocks/reseed</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Reseed the stock collection with initial data</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('POST', '/api/stocks/reseed', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/options</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get all options data</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/options', null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="endpoint">
+            <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                <span class="method get">GET</span>
+                <span class="path">/api/options/{symbol}</span>
+            </div>
+            <div class="endpoint-content">
+                <p class="description">Get options data by symbol</p>
+                <div class="test-section">
+                    <h4>Test Endpoint</h4>
+                    <input type="text" id="optionSymbol" placeholder="Stock Symbol (e.g., INFY.NS)" value="INFY.NS" style="padding: 8px; margin-right: 10px;">
+                    <button class="test-button" onclick="testEndpoint('GET', '/api/options/' + document.getElementById('optionSymbol').value, null, this)">Test</button>
+                    <div class="status"></div>
+                    <div class="response"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        window.onload = function() {
-            const ui = SwaggerUIBundle({
-                url: "/openapi/v1.json",
-                dom_id: '#swagger-ui',
-                deepLinking: true,
-                presets: [
-                    SwaggerUIBundle.presets.apis,
-                    SwaggerUIStandalonePreset
-                ],
-                plugins: [
-                    SwaggerUIBundle.plugins.DownloadUrl
-                ],
-                layout: "StandaloneLayout"
-            });
-        };
+        function toggleEndpoint(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
+        }
+
+        async function testEndpoint(method, url, body, button) {
+            const statusDiv = button.parentElement.querySelector('.status');
+            const responseDiv = button.parentElement.querySelector('.response');
+            
+            statusDiv.className = 'status';
+            statusDiv.textContent = 'Loading...';
+            statusDiv.classList.add('active');
+            
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+                
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+                
+                const response = await fetch(url, options);
+                const data = await response.json();
+                
+                statusDiv.className = 'status success';
+                statusDiv.textContent = `Status: ${response.status} ${response.statusText}`;
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+                responseDiv.classList.add('active');
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = 'Error: ' + error.message;
+                responseDiv.textContent = error.stack;
+                responseDiv.classList.add('active');
+            }
+        }
     </script>
 </body>
 </html>

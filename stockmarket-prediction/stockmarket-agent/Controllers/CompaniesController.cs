@@ -5,6 +5,9 @@ using stockmarket_agent.Models;
 
 namespace stockmarket_agent.Controllers
 {
+    /// <summary>
+    /// API endpoints for company data management
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class CompaniesController : ControllerBase
@@ -16,6 +19,12 @@ namespace stockmarket_agent.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Get all companies with optional filtering
+        /// </summary>
+        /// <param name="marketCapCategory">Filter by market cap category</param>
+        /// <param name="sector">Filter by sector</param>
+        /// <returns>List of companies</returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Company>>> GetCompanies(
             [FromQuery] string? marketCapCategory = null,
@@ -49,6 +58,11 @@ namespace stockmarket_agent.Controllers
             return company;
         }
 
+        /// <summary>
+        /// Create a new company
+        /// </summary>
+        /// <param name="company">Company object to create</param>
+        /// <returns>Created company</returns>
         [HttpPost]
         public async Task<ActionResult<Company>> CreateCompany(Company company)
         {
@@ -67,6 +81,12 @@ namespace stockmarket_agent.Controllers
             return CreatedAtAction(nameof(GetCompanies), companies);
         }
 
+        /// <summary>
+        /// Update an existing company
+        /// </summary>
+        /// <param name="id">Company ID</param>
+        /// <param name="company">Company object with updated data</param>
+        /// <returns>No content on success</returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCompany(int id, Company company)
         {
@@ -96,6 +116,11 @@ namespace stockmarket_agent.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Soft delete a company (set IsActive to false)
+        /// </summary>
+        /// <param name="id">Company ID</param>
+        /// <returns>No content on success</returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCompany(int id)
         {

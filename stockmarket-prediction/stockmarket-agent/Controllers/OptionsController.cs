@@ -5,6 +5,9 @@ using stockmarket_agent.Services;
 
 namespace stockmarket_agent.Controllers
 {
+    /// <summary>
+    /// API endpoints for options data management
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class OptionsController : ControllerBase
@@ -20,6 +23,10 @@ namespace stockmarket_agent.Controllers
             _cache = cache;
         }
 
+        /// <summary>
+        /// Get all options data
+        /// </summary>
+        /// <returns>List of options data</returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OptionsData>>> GetOptions()
         {
@@ -37,6 +44,11 @@ namespace stockmarket_agent.Controllers
             return options;
         }
 
+        /// <summary>
+        /// Get options data for a specific symbol
+        /// </summary>
+        /// <param name="symbol">Stock symbol (e.g., RELIANCE.NS)</param>
+        /// <returns>List of options data for the specified symbol</returns>
         [HttpGet("{symbol}")]
         public async Task<ActionResult<IEnumerable<OptionsData>>> GetOptionsBySymbol(string symbol)
         {

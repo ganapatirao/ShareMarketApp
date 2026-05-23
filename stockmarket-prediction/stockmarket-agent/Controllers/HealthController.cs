@@ -3,6 +3,9 @@ using stockmarket_agent.Services;
 
 namespace stockmarket_agent.Controllers
 {
+    /// <summary>
+    /// API health check endpoint
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class HealthController : ControllerBase
@@ -14,6 +17,10 @@ namespace stockmarket_agent.Controllers
             _mongoStockService = mongoStockService;
         }
 
+        /// <summary>
+        /// Health check endpoint to verify API and database connectivity
+        /// </summary>
+        /// <returns>Health status with service connectivity information</returns>
         [HttpGet]
         public async Task<IActionResult> Get()
         {

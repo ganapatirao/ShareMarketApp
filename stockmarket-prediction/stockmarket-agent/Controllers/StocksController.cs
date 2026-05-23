@@ -1,10 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.OpenApi;
 using stockmarket_agent.Models;
 using stockmarket_agent.Services;
 
 namespace stockmarket_agent.Controllers
 {
+    /// <summary>
+    /// API endpoints for stock data management and analysis
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class StocksController : ControllerBase
@@ -23,6 +27,19 @@ namespace stockmarket_agent.Controllers
             _cache = cache;
         }
 
+        /// <summary>
+        /// Get all stocks with optional filtering and pagination
+        /// </summary>
+        /// <param name="trend">Filter by trend (Bullish, Bearish, Sideways)</param>
+        /// <param name="sector">Filter by sector</param>
+        /// <param name="marketCapCategory">Filter by market cap category</param>
+        /// <param name="companyName">Filter by company name</param>
+        /// <param name="condition">Filter by condition</param>
+        /// <param name="sortBy">Sort by field (symbol, price, change, trend, etc.)</param>
+        /// <param name="sortOrder">Sort order (asc or desc)</param>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Paginated list of stocks with metadata</returns>
         [HttpGet]
         public async Task<ActionResult<object>> GetStocks(
             [FromQuery] string? trend = null,
@@ -106,6 +123,11 @@ namespace stockmarket_agent.Controllers
             };
         }
 
+        /// <summary>
+        /// Get a specific stock by symbol
+        /// </summary>
+        /// <param name="symbol">Stock symbol (e.g., RELIANCE.NS)</param>
+        /// <returns>Stock data for the specified symbol</returns>
         [HttpGet("{symbol}")]
         public async Task<ActionResult<StockData>> GetStock(string symbol)
         {
@@ -130,6 +152,10 @@ namespace stockmarket_agent.Controllers
             return stock;
         }
 
+        /// <summary>
+        /// Get all unique company names
+        /// </summary>
+        /// <returns>List of unique company names</returns>
         [HttpGet("company-names")]
         public async Task<ActionResult<IEnumerable<string>>> GetCompanyNames()
         {
@@ -148,6 +174,10 @@ namespace stockmarket_agent.Controllers
             return names;
         }
 
+        /// <summary>
+        /// Get all unique sectors
+        /// </summary>
+        /// <returns>List of unique sectors</returns>
         [HttpGet("sectors")]
         public async Task<ActionResult<IEnumerable<string>>> GetSectors()
         {
@@ -166,6 +196,10 @@ namespace stockmarket_agent.Controllers
             return sectors;
         }
 
+        /// <summary>
+        /// Get all unique market cap categories
+        /// </summary>
+        /// <returns>List of unique market cap categories</returns>
         [HttpGet("market-caps")]
         public async Task<ActionResult<IEnumerable<string>>> GetMarketCaps()
         {
@@ -184,6 +218,11 @@ namespace stockmarket_agent.Controllers
             return marketCaps;
         }
 
+        /// <summary>
+        /// Get technical analysis for a specific stock
+        /// </summary>
+        /// <param name="symbol">Stock symbol (e.g., RELIANCE.NS)</param>
+        /// <returns>Stock data with technical analysis indicators</returns>
         [HttpGet("{symbol}/technical-analysis")]
         public async Task<ActionResult<StockData>> GetTechnicalAnalysis(string symbol)
         {
@@ -199,6 +238,11 @@ namespace stockmarket_agent.Controllers
             return analyzedStock;
         }
 
+        /// <summary>
+        /// Compare multiple stocks side by side
+        /// </summary>
+        /// <param name="symbols">Comma-separated list of stock symbols (e.g., RELIANCE.NS,TCS.NS)</param>
+        /// <returns>List of stocks with technical analysis for comparison</returns>
         [HttpGet("compare")]
         public async Task<ActionResult<IEnumerable<StockData>>> CompareStocks([FromQuery] string symbols)
         {
@@ -223,6 +267,10 @@ namespace stockmarket_agent.Controllers
             return stocks;
         }
 
+        /// <summary>
+        /// Get sector-wise analysis of stocks
+        /// </summary>
+        /// <returns>Sector analysis with count, average price, average change, and trend distribution</returns>
         [HttpGet("sector-analysis")]
         public async Task<ActionResult<IEnumerable<object>>> GetSectorAnalysis()
         {
@@ -245,6 +293,10 @@ namespace stockmarket_agent.Controllers
             return sectorAnalysis;
         }
 
+        /// <summary>
+        /// Get multibagger stocks (stocks with >20% price change)
+        /// </summary>
+        /// <returns>Top 20 stocks with highest price change percentage</returns>
         [HttpGet("multibagger")]
         public async Task<ActionResult<IEnumerable<StockData>>> GetMultibaggerStocks()
         {
@@ -259,6 +311,10 @@ namespace stockmarket_agent.Controllers
             return multibaggers;
         }
 
+        /// <summary>
+        /// Get valuable stocks (stocks with more than 15 percent discount from 52-week high and RSI less than 40)
+        /// </summary>
+        /// <returns>Top 20 stocks with highest discount from 52-week high and oversold RSI</returns>
         [HttpGet("valuable")]
         public async Task<ActionResult<IEnumerable<StockData>>> GetValuableStocks()
         {
@@ -273,6 +329,10 @@ namespace stockmarket_agent.Controllers
             return valuableStocks;
         }
 
+        /// <summary>
+        /// Reseed the stock collection with initial data
+        /// </summary>
+        /// <returns>Success message</returns>
         [HttpPost("reseed")]
         public async Task<ActionResult> ReseedStocks()
         {
