@@ -176,42 +176,89 @@ namespace stockmarket_agent.Controllers
         }
 
         /// <summary>
-        /// Seed initial data to in-memory database and MongoDB
+        /// Seed/Update/Reset stock data from Yahoo Finance to MongoDB
         /// </summary>
+        /// <param name="action">Action type: "full-setup" (seed companies + MongoDB), "reset-stocks" (clear and re-seed MongoDB only), "update-stocks" (update MongoDB without clearing)</param>
         /// <returns>Seeding status</returns>
         [HttpPost("seed")]
-        public async Task<ActionResult<object>> SeedData()
+        public async Task<ActionResult<object>> SeedData([FromQuery] string action = "full-setup")
         {
             try
             {
-                // Ensure database is created
-                _context.Database.EnsureCreated();
+                bool success = false;
+                string message = "";
+                object data = null;
 
-                // Seed companies to in-memory database
-                var companies = DbSeeder.GetInitialCompanies();
-                if (!_context.Companies.Any())
+                switch (action.ToLower())
                 {
-                    _context.Companies.AddRange(companies);
-                    await _context.SaveChangesAsync();
-                    _logger.LogInformation("Seeded initial companies to in-memory database.");
+                    case "full-setup":
+                        _logger.LogInformation("Starting full setup - companies to in-memory DB + MongoDB from Yahoo Finance...");
+                        // Ensure database is created
+                        _context.Database.EnsureCreated();
+
+                        // Seed companies to in-memory database
+                        var companies = DbSeeder.GetInitialCompanies();
+                        if (!_context.Companies.Any())
+                        {
+                            _context.Companies.AddRange(companies);
+                            await _context.SaveChangesAsync();
+                            _logger.LogInformation("Seeded initial companies to in-memory database.");
+                        }
+
+                        // Seed MongoDB with stock data (clears existing)
+                        success = await _mongoStockService.SeedInitialDataAsync();
+                        message = success ? "Full setup completed successfully" : "Failed to complete full setup";
+                        data = new { CompaniesSeeded = companies.Count };
+                        break;
+
+                    case "update-stocks":
+                        _logger.LogInformation("Starting stock update - updating MongoDB with live data from Yahoo Finance (without clearing)...");
+                        success = await _mongoStockService.UpdateStockDataFromYahooAsync();
+                        message = success ? "Stock data updated successfully" : "Failed to update stock data";
+                        data = new { };
+                        break;
+
+                    case "reset-stocks":
+                        _logger.LogInformation("Starting stock reset - clearing MongoDB and fetching fresh data from Yahoo Finance...");
+                        success = await _mongoStockService.SeedInitialDataAsync();
+                        message = success ? "Stock data reset successfully" : "Failed to reset stock data";
+                        data = new { };
+                        break;
+
+                    default:
+                        return BadRequest(new
+                        {
+                            Status = "Error",
+                            Message = $"Invalid action '{action}'. Valid actions: full-setup, update-stocks, reset-stocks"
+                        });
                 }
 
-                // Seed MongoDB with stock data
-                _logger.LogInformation("Starting MongoDB seeding...");
-                await _mongoStockService.SeedInitialDataAsync();
-                _logger.LogInformation("MongoDB seeding completed.");
-
-                return Ok(new
+                if (success)
                 {
-                    Status = "Success",
-                    Message = "Data seeded successfully",
-                    CompaniesSeeded = companies.Count,
-                    Timestamp = DateTime.UtcNow
-                });
+                    var totalCount = await _mongoStockService.GetTotalCountAsync();
+                    return Ok(new
+                    {
+                        Status = "Success",
+                        Message = message,
+                        Action = action.ToLower(),
+                        TotalStocks = totalCount,
+                        Data = data,
+                        Timestamp = DateTime.UtcNow
+                    });
+                }
+                else
+                {
+                    return StatusCode(500, new
+                    {
+                        Status = "Error",
+                        Message = message,
+                        Action = action.ToLower()
+                    });
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during data seeding");
+                _logger.LogError(ex, "Error during seeding operation");
                 return StatusCode(500, new
                 {
                     Status = "Error",

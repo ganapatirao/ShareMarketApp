@@ -38,7 +38,6 @@ function StockTable({ stocks, sorting, onSort }) {
         <table className="stock-table">
           <thead>
             <tr>
-              <th onClick={() => handleSort('symbol')} className="sortable">Symbol{getSortIcon('symbol')}</th>
               <th onClick={() => handleSort('companyname')} className="sortable">Company Name{getSortIcon('companyname')}</th>
               <th onClick={() => handleSort('price')} className="sortable">Price{getSortIcon('price')}</th>
               <th onClick={() => handleSort('change')} className="sortable">Change %{getSortIcon('change')}</th>
@@ -47,7 +46,7 @@ function StockTable({ stocks, sorting, onSort }) {
               <th onClick={() => handleSort('targetprice')} className="sortable">Target Price{getSortIcon('targetprice')}</th>
               <th onClick={() => handleSort('week52high')} className="sortable">52W High{getSortIcon('week52high')}</th>
               <th onClick={() => handleSort('week52low')} className="sortable">52W Low{getSortIcon('week52low')}</th>
-              <th onClick={() => handleSort('discountfromhigh')} className="sortable">52W Discount %{getSortIcon('discountfromhigh')}</th>
+              <th onClick={() => handleSort('discountfromhigh')} className="sortable">52W Disc %{getSortIcon('discountfromhigh')}</th>
               <th onClick={() => handleSort('volume')} className="sortable">Volume{getSortIcon('volume')}</th>
               <th onClick={() => handleSort('rsi')} className="sortable">RSI{getSortIcon('rsi')}</th>
               <th onClick={() => handleSort('sector')} className="sortable">Sector{getSortIcon('sector')}</th>
@@ -57,7 +56,6 @@ function StockTable({ stocks, sorting, onSort }) {
           <tbody>
             {stocks.map((stock) => (
               <tr key={stock.symbol} style={getTrendRowStyle(stock.trend)}>
-                <td className="symbol">{stock.symbol}</td>
                 <td className="company-name">{stock.companyName}</td>
                 <td className="price">₹{formatNumber(stock.price)}</td>
                 <td className={`change ${stock.priceChangePercentage >= 0 ? 'positive' : 'negative'}`}>

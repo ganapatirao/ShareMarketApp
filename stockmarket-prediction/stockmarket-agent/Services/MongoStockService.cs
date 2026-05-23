@@ -182,6 +182,35 @@ namespace stockmarket_agent.Services
                 Console.WriteLine("Fetching latest stock data from Yahoo Finance in batches to avoid rate limits...");
                 var companies = stockmarket_agent.Data.DbSeeder.GetInitialCompanies();
                 
+                return await FetchAndStoreStockDataFromYahooAsync(companies);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error seeding MongoDB: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateStockDataFromYahooAsync()
+        {
+            try
+            {
+                Console.WriteLine("Updating existing stock data from Yahoo Finance (without clearing)...");
+                var companies = stockmarket_agent.Data.DbSeeder.GetInitialCompanies();
+                
+                return await FetchAndStoreStockDataFromYahooAsync(companies);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating MongoDB: {ex.Message}");
+                return false;
+            }
+        }
+
+        private async Task<bool> FetchAndStoreStockDataFromYahooAsync(List<Models.Company> companies)
+        {
+            try
+            {
                 // Fetch data in batches to avoid rate limiting
                 int batchSize = 10; // Fetch 10 stocks at a time to speed up
                 int delayBetweenBatches = 5; // Wait 5 seconds between batches (retry logic will handle rate limits)
@@ -279,12 +308,12 @@ namespace stockmarket_agent.Services
                     }
                 }
 
-                Console.WriteLine($"Successfully seeded {realDataCount + fallbackDataCount} stocks into MongoDB ({realDataCount} from Yahoo Finance, {fallbackDataCount} fallback)");
+                Console.WriteLine($"Successfully processed {realDataCount + fallbackDataCount} stocks ({realDataCount} from Yahoo Finance, {fallbackDataCount} failed)");
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error seeding MongoDB: {ex.Message}");
+                Console.WriteLine($"Error fetching and storing stock data: {ex.Message}");
                 return false;
             }
         }
@@ -332,96 +361,5 @@ namespace stockmarket_agent.Services
             }
         }
 
-        private StockData GenerateFallbackStockData(Models.Company company)
-        {
-            var seed = company.Symbol.GetHashCode();
-            var deterministicRandom = new Random(seed);
-
-            var currentPrice = company.BasePrice * (0.9 + deterministicRandom.NextDouble() * 0.2);
-            var week52High = currentPrice * (1.1 + deterministicRandom.NextDouble() * 0.2);
-            var week52Low = currentPrice * (0.8 + deterministicRandom.NextDouble() * 0.2);
-            var discountFromHigh = (week52High - currentPrice) / week52High * 100;
-
-            string trend = "Sideways";
-            var priceMovement = deterministicRandom.NextDouble();
-            if (priceMovement > 0.6) trend = "Bullish";
-            else if (priceMovement < 0.4) trend = "Bearish";
-
-            var previousClose = currentPrice * (0.95 + deterministicRandom.NextDouble() * 0.1);
-            var priceChange = currentPrice - previousClose;
-            var priceChangePercentage = previousClose > 0 ? (priceChange / previousClose) * 100 : 0;
-
-            return new StockData
-            {
-                Symbol = company.Symbol,
-                CompanyName = company.Name,
-                Price = Math.Round(currentPrice, 2),
-                PreviousClose = Math.Round(previousClose, 2),
-                PriceChange = Math.Round(priceChange, 2),
-                PriceChangePercentage = Math.Round(priceChangePercentage, 2),
-                Week52High = Math.Round(week52High, 2),
-                Week52Low = Math.Round(week52Low, 2),
-                DiscountFromHigh = Math.Round(discountFromHigh, 2),
-                MarketCapCategory = company.MarketCapCategory,
-                BuyPrice = Math.Round(currentPrice * 0.95, 2),
-                TargetPrice = Math.Round(currentPrice * 1.15, 2),
-                Trend = trend,
-                Volume = 10000000 + (long)(deterministicRandom.NextDouble() * 50000000),
-                Sector = company.Sector,
-                Industry = company.Industry,
-                High = Math.Round(currentPrice * 1.02, 2),
-                Low = Math.Round(currentPrice * 0.98, 2),
-                Open = Math.Round(previousClose, 2),
-                Close = Math.Round(currentPrice, 2),
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                LastUpdated = DateTime.UtcNow
-            };
-        }
-
-        private List<StockData> GenerateInitialStockData()
-        {
-            var stocks = new List<StockData>();
-            var companies = stockmarket_agent.Data.DbSeeder.GetInitialCompanies();
-
-            foreach (var company in companies)
-            {
-                var seed = company.Symbol.GetHashCode();
-                var deterministicRandom = new Random(seed);
-
-                var currentPrice = company.BasePrice * (0.9 + deterministicRandom.NextDouble() * 0.2);
-                var week52High = currentPrice * (1.1 + deterministicRandom.NextDouble() * 0.2);
-                var week52Low = currentPrice * (0.8 + deterministicRandom.NextDouble() * 0.2);
-                var discountFromHigh = (week52High - currentPrice) / week52High * 100;
-
-                string trend = "Sideways";
-                var priceMovement = deterministicRandom.NextDouble();
-                if (priceMovement > 0.6) trend = "Bullish";
-                else if (priceMovement < 0.4) trend = "Bearish";
-
-                var marketCapCategory = company.MarketCapCategory;
-
-                stocks.Add(new StockData
-                {
-                    Symbol = company.Symbol,
-                    CompanyName = company.Name,
-                    Price = Math.Round(currentPrice, 2),
-                    Week52High = Math.Round(week52High, 2),
-                    Week52Low = Math.Round(week52Low, 2),
-                    DiscountFromHigh = Math.Round(discountFromHigh, 2),
-                    MarketCapCategory = marketCapCategory,
-                    BuyPrice = Math.Round(currentPrice * 0.95, 2),
-                    TargetPrice = Math.Round(currentPrice * 1.15, 2),
-                    Trend = trend,
-                    Volume = 10000000 + (long)(deterministicRandom.NextDouble() * 50000000),
-                    Sector = company.Sector,
-                    Industry = company.Industry,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                });
-            }
-            
-            return stocks;
-        }
     }
 }
