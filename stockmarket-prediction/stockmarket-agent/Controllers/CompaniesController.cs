@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using stockmarket_agent.Data;
 using stockmarket_agent.Models;
+using stockmarket_agent.Services;
 
 namespace stockmarket_agent.Controllers
 {
@@ -13,10 +14,14 @@ namespace stockmarket_agent.Controllers
     public class CompaniesController : ControllerBase
     {
         private readonly StockMarketDbContext _context;
+        private readonly MongoStockService _mongoStockService;
+        private readonly ILogger<CompaniesController> _logger;
 
-        public CompaniesController(StockMarketDbContext context)
+        public CompaniesController(StockMarketDbContext context, MongoStockService mongoStockService, ILogger<CompaniesController> logger)
         {
             _context = context;
+            _mongoStockService = mongoStockService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -168,6 +173,51 @@ namespace stockmarket_agent.Controllers
                     Companies = g.Select(c => new { c.Id, c.Symbol, c.Name })
                 })
                 .ToListAsync();
+        }
+
+        /// <summary>
+        /// Seed initial data to in-memory database and MongoDB
+        /// </summary>
+        /// <returns>Seeding status</returns>
+        [HttpPost("seed")]
+        public async Task<ActionResult<object>> SeedData()
+        {
+            try
+            {
+                // Ensure database is created
+                _context.Database.EnsureCreated();
+
+                // Seed companies to in-memory database
+                var companies = DbSeeder.GetInitialCompanies();
+                if (!_context.Companies.Any())
+                {
+                    _context.Companies.AddRange(companies);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Seeded initial companies to in-memory database.");
+                }
+
+                // Seed MongoDB with stock data
+                _logger.LogInformation("Starting MongoDB seeding...");
+                await _mongoStockService.SeedInitialDataAsync();
+                _logger.LogInformation("MongoDB seeding completed.");
+
+                return Ok(new
+                {
+                    Status = "Success",
+                    Message = "Data seeded successfully",
+                    CompaniesSeeded = companies.Count,
+                    Timestamp = DateTime.UtcNow
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during data seeding");
+                return StatusCode(500, new
+                {
+                    Status = "Error",
+                    Message = ex.Message
+                });
+            }
         }
 
         private bool CompanyExists(int id)

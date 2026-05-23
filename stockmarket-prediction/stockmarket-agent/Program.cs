@@ -50,7 +50,7 @@ builder.Services.AddScoped<StockDataFetcherService>();
 builder.Services.AddScoped<MongoStockService>();
 builder.Services.AddScoped<OptionsDataService>();
 builder.Services.AddScoped<FinnhubService>();
-builder.Services.AddHostedService<BackgroundSeedingService>();
+// builder.Services.AddHostedService<BackgroundSeedingService>();
 // builder.Services.AddHostedService<DailyStockDataUpdateService>();
 
 // Register HttpClient for external API calls
