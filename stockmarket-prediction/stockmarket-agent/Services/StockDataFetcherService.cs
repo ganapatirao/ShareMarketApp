@@ -105,10 +105,5 @@ namespace stockmarket_agent.Services
                 return null;
             }
         }
-
-        public async Task FetchAndStoreStockDataAsync()
-        {
-            // Implementation for fetching and storing stock data
-        }
     }
 }
