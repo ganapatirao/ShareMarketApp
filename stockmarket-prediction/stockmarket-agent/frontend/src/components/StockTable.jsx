@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './StockTable.css';
 
 function StockTable({ stocks, sorting, onSort }) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(''); // 'buy' or 'sell'
+  const [selectedStock, setSelectedStock] = useState(null);
+  const [orderPrice, setOrderPrice] = useState('');
+  const [quantity, setQuantity] = useState('1');
+  const [orderType, setOrderType] = useState('intraday'); // 'intraday' or 'overnight'
+  const [exchange, setExchange] = useState('NSE'); // 'NSE' or 'BSE'
+  const [orderStatus, setOrderStatus] = useState('');
+
   const getTrendRowStyle = (trend) => {
     switch (trend) {
       case 'Bullish':
@@ -31,6 +40,76 @@ function StockTable({ stocks, sorting, onSort }) {
     return sorting.sortOrder === 'asc' ? ' ↑' : ' ↓';
   };
 
+  const handleBuyClick = (stock) => {
+    setSelectedStock(stock);
+    setModalType('buy');
+    setOrderPrice(stock.buyPrice?.toString() || '');
+    setQuantity('1');
+    setOrderType('intraday');
+    setExchange('NSE');
+    setOrderStatus('');
+    setModalOpen(true);
+  };
+
+  const handleSellClick = (stock) => {
+    setSelectedStock(stock);
+    setModalType('sell');
+    setOrderPrice(stock.targetPrice?.toString() || '');
+    setQuantity('1');
+    setOrderType('intraday');
+    setExchange('NSE');
+    setOrderStatus('');
+    setModalOpen(true);
+  };
+
+  const handleOrderSubmit = async () => {
+    try {
+      const product = orderType === 'intraday' ? 'MIS' : 'CNC';
+      const orderData = {
+        symbol: selectedStock.symbol,
+        tradingSymbol: selectedStock.symbol,
+        transactionType: modalType.toUpperCase(),
+        quantity: parseInt(quantity),
+        price: parseFloat(orderPrice),
+        exchange: exchange,
+        product: product,
+        orderType: 'LIMIT'
+      };
+
+      const response = await fetch('http://localhost:5088/api/kite/order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        setOrderStatus('Order placed successfully! Order ID: ' + result.data?.orderId);
+      } else {
+        const errorMessage = result.message || result.error_type || 'Unknown error';
+        const errorDetails = result.error_type ? ` (${result.error_type})` : '';
+        setOrderStatus('Order failed: ' + errorMessage + errorDetails);
+        console.error('Order failed:', result);
+      }
+    } catch (error) {
+      setOrderStatus('Error placing order: ' + error.message);
+      console.error('Error placing order:', error);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedStock(null);
+    setOrderPrice('');
+    setQuantity('1');
+    setOrderType('intraday');
+    setExchange('NSE');
+    setOrderStatus('');
+  };
+
   return (
     <div className="stock-table-container">
       <h3>Stock Analysis Results ({stocks.length} stocks)</h3>
@@ -43,7 +122,9 @@ function StockTable({ stocks, sorting, onSort }) {
               <th onClick={() => handleSort('change')} className="sortable">Change %{getSortIcon('change')}</th>
               <th onClick={() => handleSort('trend')} className="sortable">Trend{getSortIcon('trend')}</th>
               <th onClick={() => handleSort('buyprice')} className="sortable">Buy Price{getSortIcon('buyprice')}</th>
+              <th>Action</th>
               <th onClick={() => handleSort('targetprice')} className="sortable">Target Price{getSortIcon('targetprice')}</th>
+              <th>Action</th>
               <th onClick={() => handleSort('week52high')} className="sortable">52W High{getSortIcon('week52high')}</th>
               <th onClick={() => handleSort('week52low')} className="sortable">52W Low{getSortIcon('week52low')}</th>
               <th onClick={() => handleSort('discountfromhigh')} className="sortable">52W Disc %{getSortIcon('discountfromhigh')}</th>
@@ -65,7 +146,13 @@ function StockTable({ stocks, sorting, onSort }) {
                   {stock.trend}
                 </td>
                 <td className="buy-price">₹{formatNumber(stock.buyPrice)}</td>
+                <td className="action-cell">
+                  <button className="buy-button" onClick={() => handleBuyClick(stock)}>Buy</button>
+                </td>
                 <td className="target-price">₹{formatNumber(stock.targetPrice)}</td>
+                <td className="action-cell">
+                  <button className="sell-button" onClick={() => handleSellClick(stock)}>Sell</button>
+                </td>
                 <td className="week52-high">₹{formatNumber(stock.week52High)}</td>
                 <td className="week52-low">₹{formatNumber(stock.week52Low)}</td>
                 <td className="discount-from-high">
@@ -82,6 +169,95 @@ function StockTable({ stocks, sorting, onSort }) {
           </tbody>
         </table>
       </div>
+
+      {modalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>{modalType === 'buy' ? 'Buy Order' : 'Sell Order'}</h3>
+            <div className="modal-info">
+              <p><strong>Symbol:</strong> {selectedStock?.symbol}</p>
+              <p><strong>Company:</strong> {selectedStock?.companyName}</p>
+            </div>
+            <div className="modal-form">
+              <div className="form-group">
+                <label>Price:</label>
+                <input
+                  type="number"
+                  step="1"
+                  value={orderPrice}
+                  onChange={(e) => setOrderPrice(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Quantity:</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Order Type:</label>
+                <div className="radio-group">
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      value="intraday"
+                      checked={orderType === 'intraday'}
+                      onChange={(e) => setOrderType(e.target.value)}
+                    />
+                    <span>Intraday (MIS)</span>
+                  </label>
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      value="overnight"
+                      checked={orderType === 'overnight'}
+                      onChange={(e) => setOrderType(e.target.value)}
+                    />
+                    <span>Overnight (CNC)</span>
+                  </label>
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Exchange:</label>
+                <div className="radio-group">
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      value="NSE"
+                      checked={exchange === 'NSE'}
+                      onChange={(e) => setExchange(e.target.value)}
+                    />
+                    <span>NSE</span>
+                  </label>
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      value="BSE"
+                      checked={exchange === 'BSE'}
+                      onChange={(e) => setExchange(e.target.value)}
+                    />
+                    <span>BSE</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            {orderStatus && (
+              <div className={`order-status ${orderStatus.includes('success') ? 'success' : 'error'}`}>
+                {orderStatus}
+              </div>
+            )}
+            <div className="modal-actions">
+              <button className="modal-button cancel" onClick={handleCloseModal}>Cancel</button>
+              <button className="modal-button confirm" onClick={handleOrderSubmit}>
+                {modalType === 'buy' ? 'Place Buy Order' : 'Place Sell Order'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

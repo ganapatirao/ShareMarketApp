@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import StockTable from './components/StockTable';
 import Filters from './components/Filters';
 import OptionsTable from './components/OptionsTable';
+import OptionsChain from './components/OptionsChain';
 import './App.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5088/api';
@@ -11,6 +12,7 @@ function App() {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('stocks');
+  const [selectedSymbol, setSelectedSymbol] = useState('NIFTY');
   const [filters, setFilters] = useState({
     trend: '',
     sector: '',
@@ -174,7 +176,20 @@ function App() {
 
       {activeTab === 'options' && (
         <div className="options-section">
+          <div className="symbol-selector">
+            <label>Select Symbol:</label>
+            <select 
+              value={selectedSymbol} 
+              onChange={(e) => setSelectedSymbol(e.target.value)}
+            >
+              <option value="NIFTY">NIFTY</option>
+              <option value="BANKNIFTY">BANKNIFTY</option>
+              <option value="SENSEX">SENSEX</option>
+              <option value="CRUDE">CRUDE</option>
+            </select>
+          </div>
           <OptionsTable options={options} />
+          <OptionsChain symbol={selectedSymbol} />
         </div>
       )}
     </div>

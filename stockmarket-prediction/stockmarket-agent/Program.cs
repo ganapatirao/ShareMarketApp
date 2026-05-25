@@ -49,6 +49,9 @@ builder.Services.AddScoped<StockAnalysisService>();
 builder.Services.AddScoped<StockDataFetcherService>();
 builder.Services.AddScoped<MongoStockService>();
 builder.Services.AddScoped<OptionsDataService>();
+builder.Services.AddScoped<NSEOptionsService>();
+builder.Services.AddScoped<KiteService>();
+builder.Services.AddScoped<YahooFinanceOptionsService>();
 builder.Services.AddScoped<FinnhubService>();
 // builder.Services.AddHostedService<BackgroundSeedingService>();
 // builder.Services.AddHostedService<DailyStockDataUpdateService>();
@@ -56,6 +59,9 @@ builder.Services.AddScoped<FinnhubService>();
 // Register HttpClient for external API calls
 builder.Services.AddHttpClient<FinnhubService>();
 builder.Services.AddHttpClient<OptionsDataService>();
+builder.Services.AddHttpClient<NSEOptionsService>();
+builder.Services.AddHttpClient<KiteService>();
+builder.Services.AddHttpClient<YahooFinanceOptionsService>();
 
 // Add Memory Cache
 builder.Services.AddMemoryCache();
